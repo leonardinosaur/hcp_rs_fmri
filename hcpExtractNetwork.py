@@ -95,7 +95,7 @@ import os
 import sys
 
 import argparse
-from network_extract_tools import *
+from rs_extract_networks import *
 
 parser = argparse.ArgumentParser(usage=__doc__)
 

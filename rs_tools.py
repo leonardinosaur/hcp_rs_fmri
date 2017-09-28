@@ -1,6 +1,7 @@
 import nibabel as ni
 import numpy as np
 import os
+import random
 
 def read_volume(img_path, dims = 4):
 
@@ -72,12 +73,19 @@ def write_nifti_volume(img_data, img_affine, outfname):
 	# Write image to nifti
 	out_img = ni.Nifti1Image(img_data, img_affine)
 	if outfname.endswith('.nii.gz'):
-		out_img.to_filename(outfname)
+		out_img.save(outfname)
 	else:
-		out_img.to_filename(outfname + '.nii.gz')
+		out_img.save(outfname + '.nii.gz')
 
 def write_array(mat, outfname):
-	np.save(outfname, mat)
+	if os.path.exists(outfname):
+		randid = generate_random_key()
+		rand_outfname = randid + '.npy'
+		wrn = 'Warning: file %s already exists. Writing results to %s ' % (outfname, rand_outfname)
+		np.save(rand_outfname, mat)
+	else:
+		# This should probably be a try catch
+		np.save(outfname, mat)
 
 def calc_rois_ts(img_data, aseg_data):
 	if hasattr(label, '__iter__'):
@@ -112,6 +120,9 @@ def binarize_aseg_data(aseg_data):
 def get_aseg_labels(aseg_data):
 	return sorted(list(set(aseg_data.flatten())))
 
+def generate_random_key():
+	alpha_num = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+	return ''.join(random.choice(alpha_num) for i in range(16))
 
 
 # Everything below, isnt done yet
