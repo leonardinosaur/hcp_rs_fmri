@@ -3,24 +3,9 @@ import numpy as np
 import os
 import random
 
-def read_volume(img_path, dims = 4):
+fsl_dir = os.environ['FSL_DIR']
+MNI_MASK_PATH = fsl_dir + '/data/standard/MNI152_T1_2mm_brain_mask.nii.gz'
 
-	# Load image
-	img = ni.load(imp_path)
-	img_data = img.get_data()
-	img_shape = img_data.shape
-	
-	# Check dimensions
-	if img_shape != dims:
-		wrn = 'Warning: %s has %s dimensions, expected %s. Will proceed with trying to read volume'\
-				% (img_path, str(dims))
-		print wrn
-
-	# Get image info
-	img_aff = img.get_affine()
-	img_hdr = img.get_header()
-
-	return img_data, img_aff, img_hdr
 
 
 def read_ts_data(img_path):
@@ -116,6 +101,17 @@ def binarize_aseg_data(aseg_data):
 	aseg_data[np.where(aseg_data != 0)] = 1
 	return aseg_data 
 
+def mask_mni_data(img_data):
+	# Load MNI brainmask
+	mni_mask = ni.load(MNI_MASK_PATH)
+	img_shape = img_data.shape
+	if len(img_shape) == 3:
+		img_data[np.where(mni_mask == 0)] = 0
+		return img_data
+	else:
+		wrn = 'Warning: MNI mask can only be applied to 3D volume \
+					returning input volume'
+		return img_data
 
 def get_aseg_labels(aseg_data):
 	return sorted(list(set(aseg_data.flatten())))
