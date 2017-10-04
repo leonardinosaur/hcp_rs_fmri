@@ -1,4 +1,4 @@
-# hcp_rs_fmri
+## hcp_rs_fmri
 Generating network/connectivity matrix from resting-state fMRI data from the Human Connectome Project. 
   
 To process a single time-series, use hcpExtractNetwork. This script performs basic checks to make  
