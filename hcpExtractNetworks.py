@@ -76,6 +76,12 @@ if not os.path.exists(sge_dir):
 	os.system('mkdir %s' % sge_dir)
 	os.system('mkdir %s' % sge_out_dir) 
 
+if not os.path.exists(sge_dir + 'output.options'):
+	with open(sge_dir + 'output.options', 'w') as o:
+		o.write('-o %s\n' % sge_out_dir)
+		o.write('-e %s' % sge_out_dir)
+		
+
 # Generate .sh file name
 prev_jobs = glob(sge_dir + 'job_extract_network*.sh')
 job_name = 'job_extract_network_%s.sh' % (str(len(prev_jobs)))
@@ -86,14 +92,12 @@ job_opts = 'job_extract_network_%s.options' % (str(len(prev_jobs)))
 shutil.copy(args.input, sge_dir + '/' + job_inps) 
 
 # Write the script to submit
-with open(sge_dir + job_name, 'w') as w, open(sge_dir + job_opts, 'w') as o:
+with open(sge_dir + job_name, 'w') as w:
 	w.write('#!/bin/sh\n')
 	w.write('DATASET="${SGE_TASK}"\n')
 	if args.aseg:
 		cmd = 'python /home/jagust/dino/scripts/hcp/hcpExtractNetwork.py -i $DATASET -a %s -d %s \n' % (args.aseg, args.outdir) 
 		w.write(cmd)
-		o.write('-o %s\n' % sge_out_dir)
-		o.write('-e %s' % sge_out_dir)
 	elif args.bmasks:
 		sys.exit('Not yet implemented')
 
@@ -101,4 +105,4 @@ with open(sge_dir + job_name, 'w') as w, open(sge_dir + job_opts, 'w') as o:
 		sys.exit('Error: need to specify segmentation(s) with -a or -b')
 
 
-print 'Navitgate to %s and type this command: \n\t submit -s %s -f %s -o %s' % (sge_dir, job_name, job_inps, job_opts)
+print 'Navitgate to %s and type this command: \n\t submit -s %s -f %s -o output.options' % (sge_dir, job_name, job_inps)
