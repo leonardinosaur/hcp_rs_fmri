@@ -1,5 +1,5 @@
 ## hcp_rs_fmri
-Generating network/connectivity matrix from resting-state fMRI data from the Human Connectome Project. 
+Generating connectivity matrix from resting-state fMRI data from the Human Connectome Project. 
   
 To process a single time-series, use hcpExtractNetwork. This script performs basic checks to make  
 sure arguments are called properly and input files exist, and then calls on the functions  
@@ -30,3 +30,7 @@ and OUTPUTDIR is the directory where the matrices will be saved. After this Pyth
 scripty runs, it will print out a command that you can run from $HOME/extractjobs to
 submit your job for processing. Output and error text files will be saved to
 $HOME/extractjobs/sgeout/
+
+# Requirements
+Pandas, NumPy, NiBabel
+
