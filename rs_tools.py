@@ -24,18 +24,18 @@ MNI_MASK_PATH = fsl_dir + '/data/standard/MNI152_T1_2mm_brain_mask.nii.gz'
 
 def extract_network_aseg(infname, aseg_path, outfname, \
 	force_flag=False, uptri_flag=False, erode_flag=False, mni_flag=False):
-		"""Extracts and saves connectivity matrix using 4D time-series volume and
-			3D segmentation volume
+	"""Extracts and saves connectivity matrix using 4D time-series volume and
+		3D segmentation volume
 
-			Args:
-				infname: path to inpute 4D time series volumes
-				aseg_path: path to segmentation/parcellation volume
-				outfname: output file name for connectivity matrix
+		Args:
+			infname: path to inpute 4D time series volumes
+			aseg_path: path to segmentation/parcellation volume
+			outfname: output file name for connectivity matrix
 
-			Returns:
-				int: Error code
+		Returns:
+			int: Error code
 
-		"""
+	"""
 
         print 'Reading timeseries data...'
         ts_data, err_code = read_ts_data(infname)
@@ -58,18 +58,18 @@ def extract_network_aseg(infname, aseg_path, outfname, \
 
 def extract_network_bmasks(infname, aseg_paths, outfname, \
 		force_flag=False, uptri_flag=False, erode_flag=False, mni_flag=False):
-		"""Extracts and saves connectivity matrix using 4D time-series volume and
-			3D segmentation volume
+	"""Extracts and saves connectivity matrix using 4D time-series volume and
+		3D segmentation volume
 
-			Args:
-				infname: path to inpute 4D time series volumes
-				aseg_paths: list of paths to binary ROI mask volumes
-				outfname: output file name for connectivity matrix
+		Args:
+			infname: path to inpute 4D time series volumes
+			aseg_paths: list of paths to binary ROI mask volumes
+			outfname: output file name for connectivity matrix
 
-			Returns:
-				int: Error code
+		Returns:
+			int: Error code
 
-		"""
+	"""
 
 	print 'Reading timeseries data...'
 	ts_data, err_code = read_ts_data(infname)
