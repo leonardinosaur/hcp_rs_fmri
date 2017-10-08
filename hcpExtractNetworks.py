@@ -95,7 +95,7 @@ with open(sge_dir + job_name, 'w') as w:
 	w.write('#!/bin/sh\n')
 	w.write('DATASET="${SGE_TASK}"\n')
 	if args.aseg:
-		cmd = 'python /home/jagust/dino/scripts/hcp/hcpExtractNetwork.py -i $DATASET -a %s -d %s \n' % (args.aseg, args.outdir) 
+		cmd = 'python /home/jagust/dino/scripts/hcp_rs_fmri/hcpExtractNetwork.py -i $DATASET -a %s -d %s \n' % (args.aseg, args.outdir) 
 		w.write(cmd)
 	elif args.bmasks:
 		sys.exit('Not yet implemented')

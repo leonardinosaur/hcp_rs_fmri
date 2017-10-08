@@ -43,6 +43,11 @@ Output file name for connectivity matrix. If the name doesnt have a .npy
 extension, it will be added. If this option is left blank, a random
 file name will be generated.
 
+--outdir
+
+Output directory; only used if -o/--output is not specified; Matrices
+will be saved into this directory with a random file name. An accompanying
+text file will be saved along with the matrix to help identify the output.
 
 --force
 
