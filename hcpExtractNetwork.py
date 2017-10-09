@@ -49,11 +49,12 @@ Output directory; only used if -o/--output is not specified; Matrices
 will be saved into this directory with a random file name. An accompanying
 text file will be saved along with the matrix to help identify the output.
 
---force
+--fsflag
 
-Not yet implemented.
-
-Overwrite existing connectivity matrix with same path as OUTPUT
+Only extract connectivity matrix for grey matter ROIs from the Desikan-Killiany
+atlas. Identifies these grey matter ROIs using default FreeSurfer LUT. Assumes
+that -a/--aseg option is being used and a FreeSurfer generated aparc+aseg.nii.gz
+file is supplied.
 
 --uptri
 
@@ -62,12 +63,12 @@ Not yet implemented.
 Only save upper right triangle of connectivity matrix. Set the
 lower left triangle to zero. 
 
---mni
 
-Not yet implemented
+--force
 
-Check if input volumes are in MNI152 2mm space before attempting
-to extract network.
+Not yet implemented.
+
+Overwrite existing connectivity matrix with same path as OUTPUT
 
 
 Notes/To-do's:
@@ -86,10 +87,9 @@ Please report bugs to leonardinodigma@gmail.com
 
 
 Written on 28 Sept 2017 by Dino
-Last Updated on 3 Oct 2017 by Dino
-	-Made output file name arg optional
-	-Added optional output directory
-	-Implemented --aseg
+Last Updated on 7 Oct 2017 by Dino
+	-Added fs_flag to include only Desikan gray matter ROIs
+	in connectivity matrix
 
 """
 import os
@@ -109,8 +109,8 @@ parser.add_argument('-o', '--output', help = 'Output matrix file name')
 parser.add_argument('-d', '--outdir', help = 'Output directory; only used if -o/--output is not specified')
 parser.add_argument('-a', '--aseg', help = 'Input segmentation/parcellation file')
 parser.add_argument('-b', '--bmasks', help = 'Input text file with paths to binary ROI masks')
-parser.add_argument('-m', '--mni', help = 'Add checks to assume MNI152 2mm space')
-parser.add_argument('-ut', '--uptri', help = 'Only save the upper right triangle of the matrix and set \n \
+parser.add_argument('-fs','--fsflag', default = False, action = 'store_true', help = 'Only include labels for Desikan grey matter ROIs')
+parser.add_argument('-ut', '--uptri', default = False, action = 'store_true', help = 'Only save the upper right triangle of the matrix and set \n \
 												the lower left to zeroes')
 
 
@@ -129,8 +129,8 @@ err_code = 0
 
 # First option - passing in a direct path to an aseg volume
 if args.aseg:
-	if not os.path.exists(args.aseg):
-		sys.exit('Error: input text file %s does not exist' % args.aseg)
+    if not os.path.exists(args.aseg):
+	sys.exit('Error: input text file %s does not exist' % args.aseg)
     
     if args.output:
             err_code = extract_network_aseg(args.input, args.aseg, args.output)
@@ -143,11 +143,11 @@ if args.aseg:
 			out_path = args.outdir + '/' + out_path
     	with open(out_path.replace('.npy', '.txt'), 'w') as w:
             w.write(args.input + '\n')
-			w.write(args.aseg + '\n')
-			w.write(out_path)
+	    w.write(args.aseg + '\n')
+	    w.write(out_path)
 
-		# Extract connectivity matrix
-		err_code = extract_network_aseg(args.input, args.aseg, out_path)
+	    # Extract connectivity matrix
+	    err_code = extract_network_aseg(args.input, args.aseg, out_path, fs_flag = args.fsflag)
 
 
 
@@ -186,7 +186,6 @@ elif args.bmasks:
 else:
 	print 'Segmentation file(s) required to generate matrix...'
 	err_code = 1
-
 
 
 # Exit script

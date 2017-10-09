@@ -22,8 +22,12 @@ from datetime import datetime
 fsl_dir = os.environ['FSL_DIR']
 MNI_MASK_PATH = fsl_dir + '/data/standard/MNI152_T1_2mm_brain_mask.nii.gz'
 
+fs_gm_df = pd.read_csv('/home/jagust/graph/scripts/fs_gm.csv', header=None)
+fs_gm_df.columns = ['ROI', 'Label']
+fs_rois = fs_gm_df['Label'].values
+
 def extract_network_aseg(infname, aseg_path, outfname, \
-	force_flag=False, uptri_flag=False, erode_flag=False, mni_flag=False):
+	fs_flag=False, force_flag=False, uptri_flag=False):
 	"""Extracts and saves connectivity matrix using 4D time-series volume and
 		3D segmentation volume
 
@@ -46,7 +50,7 @@ def extract_network_aseg(infname, aseg_path, outfname, \
         print 'Timeseries data loaded'
         ts_df = pd.DataFrame()
         aseg_data, err_code = read_aseg_data(aseg_path)
-        ts_df = calc_rois_ts(ts_data, aseg_data)
+        ts_df = calc_rois_ts(ts_data, aseg_data, fs_flag)
 
         corr_df = ts_df.corr()
         corr_mat = corr_df.values
@@ -57,7 +61,7 @@ def extract_network_aseg(infname, aseg_path, outfname, \
         return 0
 
 def extract_network_bmasks(infname, aseg_paths, outfname, \
-		force_flag=False, uptri_flag=False, erode_flag=False, mni_flag=False):
+		force_flag=False, uptri_flag=False):
 	"""Extracts and saves connectivity matrix using 4D time-series volume and
 		3D segmentation volume
 
@@ -212,7 +216,7 @@ def write_array(mat, outfname, force_flag = False):
 	else:
 		np.save(outfname, mat)
 
-def calc_rois_ts(img_data, aseg_data):
+def calc_rois_ts(img_data, aseg_data, fs_flag=True):
 	"""Calculate average time-series from each ROI
 		Args:
 			img_data: 4D Time series volume data
@@ -224,6 +228,8 @@ def calc_rois_ts(img_data, aseg_data):
 	"""
 
 	labels = get_aseg_labels(aseg_data)
+	if fs_flag:
+		labels = [l for l in labels if l in fs_rois]
 	out_df = pd.DataFrame(columns = labels)
 	print 'Input time series data has %s timepoints' % img_data.shape[3]
 	for i in range(img_data.shape[3]):

@@ -7,7 +7,8 @@ A script to set-up a *.sh job that can be submitted to
 	SGE to run hcpExtractNetwork.py on multiple datasets
 	in parallel. After running, this script will print out
 	the command that you can run from $HOME/extractjobs/
-	to submit the *.sh job for processing.
+	to submit your *.sh job for processing. The output and
+	error textfiles will be saved in $HOME/extractjobs/sgeout
 
 Numpy arrays will be saved with randomly generated filenames (e.g. 
 	tmp_aSdf42.npy). This was implemented since many input files will likely
@@ -17,7 +18,8 @@ Numpy arrays will be saved with randomly generated filenames (e.g.
 	lists which inputs were used to generate the numpy array. This text file
 	can be easily parsed to rename output .npy files.
   
-For further information, please see hcpExtractNetwork.py
+For further information on usage and generation of connectivity
+	matrix generation, please see hcpExtractNetwork.py
 
 
 --input
@@ -26,7 +28,7 @@ A text file that lists full paths (one per line) to input 4D volumes
 
 --outdir
 
-Directory where connectivity matrices will be saved
+Full path directory where connectivity matrices will be saved.
 
 --aseg
 
@@ -37,7 +39,7 @@ A path to a 3D segmentation volume. This segmentation will be applied to
 
 Not yet implemented for batch processing.
 This option has been implemented for single case processing so
-	please refer to hcpExtractNetwork
+	please refer to hcpExtractNetwork.py
 
 
 Written on 27 Sept 2017 by Dino
@@ -46,6 +48,7 @@ Last updated on 7 Oct 2017 by Dino
 
 To-do:
 -Remove unused imports
+-Try to refactor code to use less memory
 
 """
 import argparse
@@ -55,6 +58,7 @@ from glob import glob
 import pandas as pd
 import os
 import random
+import sys
 
 parser = argparse.ArgumentParser(usage=__doc__)
 
@@ -63,10 +67,17 @@ parser.add_argument('-i', '--input', help = 'Text file that lists full paths (on
 parser.add_argument('-d', '--outdir', help = 'Output directory where matrices will be saved')
 parser.add_argument('-a', '--aseg', help = 'Input segmentation/parcellation file')
 parser.add_argument('-b', '--bmasks', help = 'Input text file with paths to binary ROI masks')
-
+parser.add_argument('-fs', '--fsflag', default=False, action='store_true', help = 'Only include labels for Desikan grey matter ROIs')
 
 
 args = parser.parse_args()
+
+# Check inputs
+if not args.input:
+	sys.exit('Error: must supply input text file with -i/--input; please see --help')
+if not os.path.exists(args.input):
+	sys.exit('Error: Input files %s does not exist' % args.input)
+
 
 # Make an output directory in home
 sge_dir =  os.path.expanduser('~')+ '/extractjobs/'
@@ -80,7 +91,7 @@ if not os.path.exists(sge_dir + 'output.options'):
 	with open(sge_dir + 'output.options', 'w') as o:
 		o.write('-o %s\n' % sge_out_dir)
 		o.write('-e %s' % sge_out_dir)
-		
+		o.write('-l mem_free=12G\n')		
 
 # Generate .sh file name
 prev_jobs = glob(sge_dir + 'job_extract_network*.sh')
@@ -95,8 +106,12 @@ with open(sge_dir + job_name, 'w') as w:
 	w.write('#!/bin/sh\n')
 	w.write('DATASET="${SGE_TASK}"\n')
 	if args.aseg:
-		cmd = 'python /home/jagust/dino/scripts/hcp_rs_fmri/hcpExtractNetwork.py -i $DATASET -a %s -d %s \n' % (args.aseg, args.outdir) 
-		w.write(cmd)
+		if not args.fsflag:
+			cmd = 'python /home/jagust/dino/scripts/hcp_rs_fmri/hcpExtractNetwork.py -i $DATASET -a %s -d %s \n' % (args.aseg, args.outdir) 
+			w.write(cmd)
+		else:
+                        cmd = 'python /home/jagust/dino/scripts/hcp_rs_fmri/hcpExtractNetwork.py -i $DATASET -a %s -d %s -fs \n' % (args.aseg, args.outdir)
+                        w.write(cmd)
 	elif args.bmasks:
 		sys.exit('Not yet implemented')
 	else:
