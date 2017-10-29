@@ -90,7 +90,7 @@ if not os.path.exists(sge_dir):
 if not os.path.exists(sge_dir + 'output.options'):
 	with open(sge_dir + 'output.options', 'w') as o:
 		o.write('-o %s\n' % sge_out_dir)
-		o.write('-e %s' % sge_out_dir)
+		o.write('-e %s\n' % sge_out_dir)
 		o.write('-l mem_free=12G\n')		
 
 # Generate .sh file name
