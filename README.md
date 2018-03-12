@@ -1,5 +1,5 @@
 ## hcp_rs_fmri
-Generating connectivity matrix from preprocesed resting-state fMRI data from the Human Connectome Project. 
+Generating connectivity matrix from preprocesed resting-state fMRI data from the Human Connectome Project. The scripts were designed for use on the Berkeley Neuroscience Cluster. 
   
 To process a single time-series, use hcpExtractNetwork. This script performs basic checks to make  
 sure arguments are called properly and input files exist, and then calls on the functions  
